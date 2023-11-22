@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: activemq
+  labels:
+    app: activemq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activemq
+  template:
+    metadata:
+      labels:
+        app: activemq
+        app.kubernetes.io/name: activemq
+    spec:
+
+      volumes:
+      - name: config-activemq-xml
+        configMap:
+          name: configmap-activemq
+      - name: config-jetty-xml
+        configMap:
+          name: configmap-jetty   
+
+      containers:
+      - name: activemq
+        image: tranchida/activemq:5.18.3
+        imagePullPolicy: Always
+        resources:
+          requests:
+              memory: 1Gi
+              cpu: 1
+          limits:
+              memory: 1Gi
+              cpu: 1
+        ports:
+          - containerPort: 61616
+          - containerPort: 8161
+          - containerPort: 50901
+        volumeMounts:
+        - name: activemq-data
+          mountPath: /opt/activemq/data
+#         - name: config-activemq-xml
+#          mountPath: /opt/activemq/conf/activemq.xml
+#          subPath: activemq.xml
+#        - name: config-jetty-xml
+#          mountPath: /opt/activemq/conf/jetty.xml 
+#          subPath: jetty.xml          
+
+        env:
+        - name: ACTIVEMQ_OPTS
+          value: "-Djetty.host=0.0.0.0"
+        - name: ACTIVEMQ_SUNJMX_START
+          value: "-Dcom.sun.management.jmxremote.port=50901 
+                  -Dcom.sun.management.jmxremote.rmi.port=50901 
+                  -Dcom.sun.management.jmxremote.authenticate=true
+                  -Dcom.sun.management.jmxremote.password.file=conf/jmx.password 
+                  -Dcom.sun.management.jmxremote.access.file=conf/jmx.access 
+                  -Dcom.sun.management.jmxremote.ssl=false 
+                  -Dcom.sun.management.jmxremote.local.only=false
+                  -Djava.rmi.server.hostname=192.168.59.20
+                 "
+        - name: ACTIVEMQ_TMP
+          value : "/tmp"
+    
+      - name: sftp
+        image: atmoz/sftp
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 250m
+          limits:
+            memory: 128Mi
+            cpu: 250m
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: activemq-data
+          mountPath: /home/esb/data      
+        env:
+        - name: SFTP_USERS
+          value: "esb:sample:::data"
+  
+  volumeClaimTemplates:
+  - metadata:
+      name: activemq-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
