@@ -79,10 +79,10 @@ spec:
         - containerPort: 22
         volumeMounts:
         - name: activemq-data
-          mountPath: /home/esb/data      
+          mountPath: /home/activemq/data      
         env:
         - name: SFTP_USERS
-          value: "esb:sample:::data"
+          value: "activemq:sample:1000:1001:data"
   
   volumeClaimTemplates:
   - metadata:

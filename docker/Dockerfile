@@ -9,8 +9,8 @@ RUN apk add --update curl && \
     mkdir -p /opt && \
     curl -s -S https://archive.apache.org/dist/activemq/$ACTIVEMQ_VERSION/$ACTIVEMQ-bin.tar.gz | tar -xvz -C /opt && \
     mv /opt/$ACTIVEMQ $ACTIVEMQ_HOME && \
-    addgroup -S activemq && \
-    adduser -S -H -G activemq -h $ACTIVEMQ_HOME activemq && \
+    addgroup -S activemq --gid 1001 && \
+    adduser -S -H -G activemq -h $ACTIVEMQ_HOME activemq --uid 1000 && \
     chown -R activemq:activemq $ACTIVEMQ_HOME && \
     chown -h activemq:activemq $ACTIVEMQ_HOME && \
     chmod 400 ${ACTIVEMQ_HOME}/conf/jmx.password
