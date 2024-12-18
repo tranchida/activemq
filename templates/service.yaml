@@ -17,4 +17,11 @@ spec:
     - protocol: TCP
       name: stomp
       port: 61613
+    - protocol: TCP
+      name: amqp
+      port: 5672
+    - protocol: TCP
+      name: mqtt
+      port: 1883
+
 
