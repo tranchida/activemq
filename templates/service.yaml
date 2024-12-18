@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: activemq-service
+  name: {{ .Release.Name }}
 spec:
   selector:
-    app.kubernetes.io/name: activemq
+    app.kubernetes.io/name: {{ .Release.Name }}
   allocateLoadBalancerNodePorts: false
   type: LoadBalancer
   ports:
@@ -13,13 +13,8 @@ spec:
       port: 8161
     - protocol: TCP
       name: openwire
-      port: 50900
-      targetPort: 61616
+      port: 61616
     - protocol: TCP
-      name: jmx
-      port: 50901
-      targetPort: 50901
-    - protocol: TCP
-      name: sftp
-      port: 22
+      name: stomp
+      port: 61613
 
